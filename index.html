@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="灯を継ぐ隊列">
 <meta name="format-detection" content="telephone=no">
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>灯を継ぐ隊列 -LAST ROTATION-</title>
@@ -2975,6 +2974,15 @@ body.fast #stampOk.on { animation-duration: .5s; }
 
 /* v5.9.17 背景の動きをオフ（設定）：背景の常に動いている飾りだけを、いまの形のまま止める（消す・暗くする・差し替えはしない） */
 html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, html.bg-still .miasma b, html.bg-still .st-lamp, html.bg-still .spin, html.bg-still .o-art, html.bg-still .orbit .core, html.bg-still .orbit .crest .spinner { animation-play-state: paused !important; }   /* タイトルの紋章の回転も止める（v5.9.18） */
+/* swipla向け簡易版（5.9.20-s1）：絵・画像・背景の模様をやめ、単色と枠線にする。配置と大きさは変えない */
+html.lite .cover, html.lite:root[data-skin] .cover { background: #0e131d !important; }
+html.lite .cover::before, html.lite .grain, html.lite .orbit, html.lite .demo { display: none !important; }
+html.lite .cover .btn { border-image: none !important; border: 1.5px solid #5f5848 !important; border-radius: 6px; background: rgba(255, 255, 255, 0.03); color: #f1e1bc; text-shadow: none; }
+html.lite .cover .btn.primary { border-color: #d8b660 !important; background: rgba(216, 182, 96, 0.12); color: #f3dc9a; }
+html.lite .scene > :not(.sky), html.lite .sky::before, html.lite .sky::after { display: none !important; }
+html.lite .strip .stone, html.lite .strip .cn { display: none !important; }
+html.lite .board .strip { background: var(--s2) !important; box-shadow: none !important; border: 1.5px solid rgba(255, 255, 255, 0.28); }
+html.lite .board .strip::after { box-shadow: none !important; }
 </style>
 </head>
 <body class="is-cover" data-ch="0">
@@ -3096,7 +3104,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
       <div class="d-row d-2"><span class="d-lbl">回復</span></div>
       <div class="d-tok" id="dt1" style="--p:0"></div><div class="d-tok" id="dt2" style="--p:1"></div><div class="d-tok" id="dt3" style="--p:2"></div>
     </div>
-    <p class="c-ver" id="cVer">ver 5.9.20</p>
+    <p class="c-ver" id="cVer">ver 5.9.20-s1</p>
     <p class="c-copy">地の底の大聖堂「環廊」。<br>灯を受け渡し、隊列を回して奥へ。</p>
     <button class="c-press" id="press" type="button"><b class="disp">画面をタップしてはじめる</b><small>♪ 音が出ます</small></button>
     <div class="c-btns">
@@ -3338,6 +3346,12 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
       (o.front || '');
   }
   const wrap = (inner) => '<svg viewBox="0 0 100 100" aria-hidden="true">' + inner + '</svg>';
+  // swipla向け簡易版（5.9.20-s1）：絵は記号と枠線、遊ぶのは第1章の3戦だけ。戦闘のルールと数値は v5.9.20 のまま
+  const LITE = true;
+  const LITE_N = 3, LITE_SEED = 20261123;
+  const LITE_COL = { tank: '#c9892b', atk: '#d9503f', sup: '#8a6ad6', heal: '#3f9b6a' };
+  const LITE_CH = { warrior: '戦', knight: '騎', samurai: '刀', witch: '魔', cleric: '神', monk: '僧', archer: '弓' };
+  const LITE_FONT = "'Zen Kaku Gothic New', system-ui, sans-serif";
   const ART = {
     warrior: wrap(bust({
       cloth: '#6b4a2b', ears: false,
@@ -3417,7 +3431,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   const face = (u) => ageArt(u.job || u.id, u.phase);
   /* 盤のちびキャラ（v5.6.9）：丸い顔の札をやめ、胸像（ART）を頭に使い、体・足・武器を描き足した全身で立たせる。
      顔の絵は1つのまま（年齢の顔・ゴシック調もそのまま効く）。メニュー・行動順・報酬の札は、今まで通り丸い顔 */
-  const CB = (() => {
+  let CB = (() => {
     const K = '#0c1019', SW = 'stroke="' + K + '" stroke-width="2.2" stroke-linejoin="round"', SL = 'stroke="' + K + '" stroke-width="2" stroke-linecap="round"';
     const blade = (x1, y1, x2, y2, col, w) => '<path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + K + '" stroke-width="' + (w + 2.4) + '" stroke-linecap="round"/><path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round"/>';
     const hand = (x, y, sk) => '<circle cx="' + x + '" cy="' + y + '" r="4.2" fill="' + sk + '" ' + SW + '/>';
@@ -3617,7 +3631,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   ];
   const DEFAULT_FORM = [['warrior', 0, 0], ['knight', 0, 1], ['samurai', 0, 2], ['witch', 1, 0], ['archer', 1, 1], ['cleric', 2, 0], ['monk', 2, 1]];
   // 戦闘の追加ルール（値は tools/sim.mjs の自動対戦で調整。「一度も回さない」勝率を20%未満に）
-  const APP_VERSION = '5.9.20';
+  const APP_VERSION = '5.9.20-s1';
   const RULES = { entry: true };
   const NORULES = { entry: false };
   const ENEMIES = [
@@ -5115,7 +5129,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
     }
     if (enter) {
       const a = $('eart');
-      a.innerHTML = EART[enemy.art != null ? enemy.art : battleIdx];
+      a.innerHTML = LITE ? liteFoeArt(enemy) : EART[enemy.art != null ? enemy.art : battleIdx];
       a.classList.toggle('vary', !!enemy.vf); a.style.setProperty('--vf', enemy.vf || 'none');
       a.classList.remove('enter'); void a.offsetWidth; if (!RM) a.classList.add('enter');
     }
@@ -5976,6 +5990,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   let fgRun = null, fgDone = {}, fgPend = null, fgShow = null;   // fgPend：説明（tip）が閉じたら出す。fgShow：出ている案内（説明が開いたら隠して、閉じたら出し直す）
   function firstGuide() {
     if (tut || !EXPM() || !run || run.node !== 0 || !firstRun()) return;
+    if (LITE && run.liteTaught) return;
     if (fgRun !== run) { fgRun = run; fgDone = {}; }
     if (phase !== 'prep' && fgDone.prep === 1) { fgDone.prep = 2; hideBubble('firstGuide'); }   // 戦闘が始まったら、隊列の案内は消す
     if (phase === 'prep' && !fgDone.prep) { fgDone.prep = 1; const fgP = () => { const w = chapLeft(); if (w) { setTimeout(fgP, w + 150); return; } if (phase === 'prep' && $('tip').hidden) bubble('まずは「戦闘開始」', $('btnStart'), 4500, 'firstGuide'); }; setTimeout(fgP, 500); }   // 帯が消えてから（v5.9.6）
@@ -7106,7 +7121,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
         const fr = frontRow();
         if (fr < 0) return;
         const L = units().filter((x) => x.r === fr);
-        await hitColumn(L[Math.floor(Math.random() * L.length)].c, act.dmg, act.pierce, wasCharged || act.big);
+        await hitColumn(L[Math.floor((LITE ? rnd() : Math.random()) * L.length)].c, act.dmg, act.pierce, wasCharged || act.big);
       }
       if (wasCharged || act.big) await bigSurvived(fallen0);
       return;
@@ -7380,8 +7395,9 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
     lastResult = result;
     battleSave('over', { result });
     render();
-    const NODES = EXPM() ? EXP.nodes : RUN.nodes;
+    const NODES = LITE ? LITE_N : EXPM() ? EXP.nodes : RUN.nodes;
     const last = run ? run.node + 1 >= NODES : battleIdx === ENEMIES.length - 1;
+    if (LITE && run && !run.liteDone) { run.liteDone = 1; run.liteTurns = (run.liteTurns || 0) + turn; if (result === 'win') run.liteWins = (run.liteWins || 0) + 1; }
     if (tut) hideCoach();
     $('resultAlt').hidden = true;
     if (result === 'win') {
@@ -7403,7 +7419,8 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
       }
       confetti();
       // 勝利と報酬を1枚に（v5.3.3）：遠征の途中の勝利は、勝利パネルを出さずに報酬の画面へ。★と「いちばん活躍」は報酬の画面の上に出す
-      if (!tut && run && EXPM() && !last && !window.__rbKeepWinPanel && !qaOn) {   // QAでは報酬へ進まず、勝利パネルで止める   // __rbKeepWinPanel：テストの一部だけが使う（以前の勝利パネル）
+      if (LITE) $('next').textContent = last ? '結果へ' : '次の戦いへ';
+      if (!LITE && !tut && run && EXPM() && !last && !window.__rbKeepWinPanel && !qaOn) {   // QAでは報酬へ進まず、勝利パネルで止める   // __rbKeepWinPanel：テストの一部だけが使う（以前の勝利パネル）
         let mv = null; Object.keys(stats.dealt).forEach((id) => { if (!mv || stats.dealt[id] > stats.dealt[mv]) mv = id; });
         expWin = { stars: gotStars, sub: turn + 'ターンで撃破' + (savedN ? '・しのいだ' + savedN + '回' : '') + (mv && stats.who[mv] ? '・いちばん活躍 ' + stats.who[mv].name : '') + '。' };
         setTimeout(() => { if (phase !== 'over' || lastResult !== 'win' || !$('result').hidden || !$('runv').hidden) return; const ev = expAfterBattle(true); expReward(ev); }, RM ? 0 : 650);
@@ -7414,9 +7431,9 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
       $('rSmall').textContent = chapLabel();
       $('rTitle').textContent = '全滅';
       $('rTitle').className = 'disp lose';
-      $('rSub').textContent = tut ? 'もう一度やってみよう。' : enemy.name + 'に敗れた' + (run ? (EXPM() ? '。遠征はここまで' : '。騎士団はここまで') : '');
+      $('rSub').textContent = tut ? 'もう一度やってみよう。' : enemy.name + 'に敗れた' + (LITE ? '' : run ? (EXPM() ? '。遠征はここまで' : '。騎士団はここまで') : '');
       if (!tut) showStats(false); else $('rStats').innerHTML = '';
-      $('next').textContent = tut ? 'もう一度' : run ? (EXPM() ? '遠征の結果へ' : '騎士団の記録へ') : '編成に戻る';
+      $('next').textContent = tut ? 'もう一度' : LITE ? '結果へ' : run ? (EXPM() ? '遠征の結果へ' : '騎士団の記録へ') : '編成に戻る';
       $('confetti').innerHTML = '';
     }
     if (qaOn) { $('next').textContent = 'タイトルへ'; $('resultAlt').hidden = true; }   // QAは1戦だけ（先へは進めない）
@@ -7426,6 +7443,7 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   $('next').addEventListener('click', () => {
     if (qaOn) { qaExit(); return; }
     if (tut) { if (lastResult === 'win') askNewRun(); else beginTutorial(); return; }
+    if (LITE && run) { $('result').hidden = true; if (lastResult === 'win' && run.node + 1 < LITE_N) liteNext(); else liteEnd(lastResult === 'win'); return; }
     if (EXPM()) {
       $('result').hidden = true;
       if (lastResult === 'win') { const ev = expAfterBattle(true); if (run.node + 1 >= EXP.nodes) expEnd(true, ev); else expReward(ev); }
@@ -9995,10 +10013,11 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   });
   $('rstConf').addEventListener('click', (ev) => { if (ev.target === $('rstConf')) closeRst(); });
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !$('rstConf').hidden) { ev.stopPropagation(); closeRst(); } }, true);
-  $('begin').addEventListener('click', askNewRun);
+  $('begin').addEventListener('click', LITE ? liteStart : askNewRun);
   // セーブがあるときはスプラッシュを省く（v5.1.48）。スプラッシュは「最初のタップで音を使えるようにする」ためのもの。
   //   「続きから」「本番モード」などのタップが同じ役目をするので、ここで音の準備（actx・warm）も済ませる
-  if (expSaved()) { gated = false; $('cover').classList.remove('gate'); $('cover').classList.add('revealed'); }
+  if (LITE) expClearSave();
+  if (!LITE && expSaved()) { gated = false; $('cover').classList.remove('gate'); $('cover').classList.add('revealed'); }
   $('resume').addEventListener('click', () => { actx(); Music.warm(); resumeExp(); });
   $('beginTut').addEventListener('click', beginTutorial);
   $('resultAlt').addEventListener('click', () => { SFX.tap(); if (tut) beginTutorial(); else toPrep(true); });
@@ -10074,13 +10093,105 @@ html.bg-still .chl::before, html.bg-still .chl::after, html.bg-still .miasma i, 
   if (QA_STEP && !qaBoot(QA_STEP)) qaExit();
   layout();
   setTimeout(layout, 300);
+  /* ===== swipla向け簡易版（5.9.20-s1） =====
+     ・絵：仲間は役割の色の枠に職の1文字、敵は大きな枠に1文字（章の主は二重の枠）。動き（踏み込む・揺れる・砕ける）は枠ごと
+     ・遊ぶのは、決まった4人の隊で第1章の3戦（地点1・2の戦闘と地点3の章の主）だけ。乱数の種を固定するので、同じ操作なら毎回同じ結果
+     ・点数：勝った戦闘1つにつき1000点。3戦勝ったら、残った仲間のHPの合計を足し、かかったターン数×10を引く（0点より下にはしない）
+     ・終わったら swipla に点数を送る（window.parent.postMessage({ type: 'gameover', score }, '*')）
+     ・戦闘のルールと数値は v5.9.20 のまま。遠征の記録（踏破・実績・前の隊）には書かない */
+  const liteCls = (job) => { const j = JOBS.find((x) => x.id === job); return j ? j.cls : 'tank'; };
+  const liteFace = (job) => '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="#121826" stroke="' + LITE_COL[liteCls(job)] + '" stroke-width="7"/>' +
+    '<text x="50" y="51" text-anchor="middle" dominant-baseline="central" font-family="' + LITE_FONT + '" font-weight="900" font-size="50" fill="#f3e8cf">' + (LITE_CH[job] || '?') + '</text></svg>';
+  function liteGlyphs() {
+    Object.keys(LITE_CH).forEach((job) => { ART[job] = liteFace(job); });
+    const memo = {};
+    CB = (u) => { const job = u.job || u.id; if (memo[job]) return memo[job];
+      const col = LITE_COL[liteCls(job)];
+      return (memo[job] = '<svg viewBox="0 0 100 124" aria-hidden="true"><ellipse class="cb-sh" cx="50" cy="119" rx="30" ry="5"/>' +
+        '<rect x="13" y="22" width="74" height="90" rx="6" fill="#121826" stroke="' + col + '" stroke-width="6"/>' +
+        '<text x="50" y="68" text-anchor="middle" dominant-baseline="central" font-family="' + LITE_FONT + '" font-weight="900" font-size="48" fill="#f3e8cf">' + (LITE_CH[job] || '?') + '</text></svg>'); };
+  }
+  function liteFoeChar(e) {
+    const n = e.name || '';
+    if (e.boss) return '竜'; if (/鎖|しばり/.test(n)) return '鎖'; if (/巨/.test(n)) return '巨'; if (/書守/.test(n)) return '書';
+    if (/ネズミ/.test(n)) return '牙'; if (/蜥蜴/.test(n)) return '火'; if (/亡霊/.test(n)) return '歌'; if (/番人/.test(n)) return '番'; if (/番兵/.test(n)) return '重';
+    if (/砂時計/.test(n)) return '時'; if (/蛾/.test(n)) return '燭'; if (/知らぬ/.test(n)) return '影';
+    return '敵';
+  }
+  function liteFoeArt(e) {
+    const col = e.variant ? '#b98ae0' : e.chief || e.boss ? '#e0b85a' : '#c8cfdc', ch = liteFoeChar(e);
+    const two = e.chief || e.boss ? '<rect x="52" y="12" width="136" height="146" rx="8" fill="none" stroke="' + col + '" stroke-width="3"/>' : '';
+    return '<svg viewBox="0 0 240 180" aria-hidden="true"><ellipse cx="120" cy="170" rx="80" ry="7" fill="rgba(5,7,12,.5)"/>' +
+      '<rect x="62" y="22" width="116" height="126" rx="6" fill="#121826" stroke="' + col + '" stroke-width="6"/>' + two +
+      '<text x="120" y="86" text-anchor="middle" dominant-baseline="central" font-family="' + LITE_FONT + '" font-weight="900" font-size="76" fill="#f3e8cf">' + ch + '</text></svg>';
+  }
+  const liteTaught = () => { try { return localStorage.getItem('rb-lite-taught') === '1'; } catch (e) { return false; } };
+  function liteStart() {
+    try { actx(); Music.warm(); } catch (e) { /* 音が使えなくても進める */ }
+    SFX.tap();
+    expClearSave();
+    enterRun();
+    rseed = LITE_SEED; uidSeq = 0;
+    run = { mode: 'exp', node: 0, year: 1, act: 0, rests: 0, chRests: 0, members: [], gone: [], events: [], best: 0, lastStars: 0, hist: [], mentors: {}, path: [], relics: [], squad: 'exp', sq: 'std', depth: 1, gen: 0, fame: 0, spent: 0, region: [],
+      lite: 1, liteTurns: 0, liteWins: 0, liteTaught: liteTaught() };
+    XSQ.find((q) => q.id === 'std').party.forEach(([id, r, c]) => { const m = newMember(id, EXP.age); m.r = r; m.c = c; run.members.push(m); });
+    roster = run.members;
+    setCols(EXP.cols);
+    grid = runGrid();
+    run.map = expFill();
+    run.choices = routeChoices();
+    battleIdx = 0;
+    if (!$('cover').hidden) closeCover();
+    swappedOnce = false;
+    liteEnterStep();
+  }
+  function liteEnterStep() {
+    run.liteDone = 0;
+    const c = run.choices.find((x) => x.type === 'battle') || run.choices[0];
+    if (!c || expEnter(c) === false) { console.warn('[簡易版] 戦闘の地点が見つからない', run.node, run.choices); liteEnd(false); }
+  }
+  function liteNext() {
+    if (!run.liteTaught) { run.liteTaught = true; try { localStorage.setItem('rb-lite-taught', '1'); } catch (e) { /* 保存できない環境 */ } }
+    expAfterBattle(true);
+    if (run.pendId) { run.path = (run.path || []).concat(run.pendId); run.pendId = null; }
+    run.node += 1;
+    run.choices = routeChoices();
+    liteEnterStep();
+  }
+  function liteScore(win) {
+    const wins = run.liteWins || 0, hp = win ? run.members.filter((m) => m.hp > 0).reduce((a, m) => a + m.hp, 0) : 0, turns = run.liteTurns || 0;
+    return { wins, hp, turns, score: Math.max(0, wins * 1000 + (win && wins >= LITE_N ? hp - turns * 10 : 0)) };
+  }
+  function liteEnd(win) {
+    if (!run.liteTaught) { run.liteTaught = true; try { localStorage.setItem('rb-lite-taught', '1'); } catch (e) { /* 保存できない環境 */ } }
+    const sc = liteScore(win && (run.liteWins || 0) >= LITE_N);
+    phase = 'over';
+    expClearSave();
+    try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'gameover', score: sc.score }, '*'); } catch (e) { /* 送れなくても結果は出す */ }
+    const clear = sc.wins >= LITE_N;
+    const lines = ['勝った戦い　' + sc.wins + ' / ' + LITE_N + '（' + sc.wins * 1000 + '点）'];
+    if (clear) { lines.push('残った仲間のHP　' + sc.hp + '（+' + sc.hp + '点）'); lines.push('かかったターン　' + sc.turns + '（−' + sc.turns * 10 + '点）'); }
+    else lines.push('3戦すべて勝つと、残ったHPとターン数でさらに点が変わる。');
+    rvShow({ small: '3戦チャレンジ　·　' + (clear ? '3戦突破' : '全滅'), title: sc.score + '点', sub: clear ? '3戦すべてに勝った。' : sc.wins + '戦目まで勝った。', events: lines, openLog: true, calm: true, noRoster: !clear, roster: clear ? run.members : undefined,
+      cards: [{ ico: ICON.rot, t: 'もう一度', d: '同じ3戦に、もう一度挑む。敵も並びも同じ。' }],
+      on: () => { $('runv').hidden = true; liteStart(); } });
+  }
+  if (LITE) {
+    liteGlyphs();
+    document.documentElement.classList.add('lite');
+    $('resume').hidden = true; $('cover').classList.remove('has-save'); $('begin').classList.add('primary');
+    $('begin').querySelector('b').textContent = 'はじめる';
+    $('beginSub').textContent = '3戦チャレンジ';
+    ['beginTut', 'storyBtn', 'installBtn', 'installIos'].forEach((id) => { const el = $(id); if (el) el.hidden = true; });
+    ['o1', 'o2', 'o3', 'dt1', 'dt2', 'dt3'].forEach((id) => { const el = $(id); if (el) el.innerHTML = ''; });
+  }
 })();
 </script>
 <script>
 (() => {
   'use strict';
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  if (!document.documentElement.classList.contains('lite') && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {   // 簡易版はオフライン用の仕組みを使わない（sw.js を同梱しない）
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
   if (standalone) return;

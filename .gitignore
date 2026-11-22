@@ -1,0 +1,5 @@
+# MiMU STUDIO の素材などを間違って入れないため
+*.psd
+*.unitypackage
+mimu/
+MiMU/
